@@ -205,3 +205,43 @@ NS_SWIFT_NAME(Crashes)
 + (void)notifyWithUserConfirmation:(MSACUserConfirmation)userConfirmation;
 
 @end
+
+
+/**
+ * Prototype of a callback function used to execute additional user code. Called
+ * upon completion of crash handling, after the crash report has been written to
+ * disk.
+ *
+ * @param context The API client's supplied context value.
+ *
+ * @see `MSACCrashesCallbacks`
+ * @see `[MSACCrashes setCrashCallbacks:]`
+ */
+typedef void (*MSACCrashesPostCrashSignalCallback)(void * _Nonnull context);
+
+/**
+ * This structure contains callbacks supported by `MSACCrashes` to allow the host
+ * application to perform additional tasks prior to program termination after a
+ * crash has occurred.
+ *
+ * @see `MSACCrashesPostCrashSignalCallback`
+ * @see `[MSACCrashes setCrashCallbacks:]`
+ */
+typedef struct MSACCrashesCallbacks {
+
+  /**
+   * An arbitrary user-supplied context value. This value may be NULL.
+   */
+  void * _Nonnull context;
+
+  /**
+   * The callback used to report caught signal information.
+   * This code must be signal-safe
+   */
+  MSACCrashesPostCrashSignalCallback _Nonnull handleSignal;
+} MSACCrashesCallbacks;
+
+
+@interface MSACCrashes(Extensions)
++(void)setCrashCallbacks:(MSACCrashesCallbacks)callbacks;
+@end

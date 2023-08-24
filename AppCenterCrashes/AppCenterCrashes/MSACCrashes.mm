@@ -126,7 +126,8 @@ void ms_save_log_buffer() {
 static void plcr_post_crash_callback(__unused siginfo_t *info, __unused ucontext_t *uap, void *context) {
   ms_save_log_buffer();
   if (msCrashesCallbacks.handleSignal != nullptr) {
-    msCrashesCallbacks.handleSignal(context);
+    // Use the context provided by the user, not the context provided to this handler.
+    msCrashesCallbacks.handleSignal(msCrashesCallbacks.context);
   }
 }
 
@@ -1430,6 +1431,14 @@ __attribute__((noreturn)) static void uncaught_cxx_exception_handler(const MSACC
                                          binaries:nil
                                            device:[[MSACDeviceTracker sharedInstance] device]
                              appProcessIdentifier:0];
+}
+
+@end
+
+@implementation MSACCrashes(Callbacks)
++(void)setCrashCallbacks:(MSACCrashesCallbacks)callbacks {
+    msCrashesCallbacks.context = callbacks.context;
+    msCrashesCallbacks.handleSignal = callbacks.handleSignal;
 }
 
 @end
